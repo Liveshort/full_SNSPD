@@ -1,0 +1,57 @@
+#include <stdio.h>
+#include <math.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <lapacke.h>
+
+#include "types.h"
+#include "helper.h"
+#include "omp.h"
+
+// advances the electric model one timestep using BLAS matrix algebra.
+// you need the LAPACK for this, or work out the matrix logic on your own (not recommended)
+int advance_time_electrical(unsigned n, size_t numberOfIv, size_t numberOfC, double ** Iv, double ** V_c, double * XW, double ** XX, double * Y, double ** R_w, double ** R, double * Iv_b) {
+    // set up matrix and vector for Ax = b calculation
+    lapack_int m, mrhs, info;
+
+    #### TEMPLATE LINE #### PARAMETER m ####
+    mrhs = 1;
+
+    double * A = calloc(m*m, sizeof(double));
+    double ** Am = calloc(m, sizeof(double *));
+    double * b = calloc(m*mrhs, sizeof(double));
+    lapack_int * ipiv = calloc(m, sizeof(lapack_int));
+
+    for (int j=0; j<m; ++j)
+        Am[j] = &A[j*m];
+
+    #### TEMPLATE LINE #### PARAMATER Am ####
+
+    #### TEMPLATE LINE #### PARAMATER b ####
+
+    // print_matrix(A, m);
+    // print_vector(b, m);
+    // exit(99);
+
+    info = LAPACKE_dgesv(LAPACK_ROW_MAJOR, m, mrhs, A, m, ipiv, b, mrhs);
+
+    if (info != 0) {
+        printf("Error encountered in matrix calculation of electrical model (info = %d)...\nExiting with code 3.\n", info);
+        exit(3);
+    }
+
+    for (unsigned j=0; j<numberOfIv; ++j)
+        Iv[j][n] = b[j];
+    for (unsigned j=0; j<numberOfC; ++j)
+        V_c[j][n] = b[j + numberOfIv];
+
+    free(Am);
+    free(A);
+    free(b);
+    free(ipiv);
+
+    //if (n>100)
+    //    exit(99);
+
+    return 0;
+}
