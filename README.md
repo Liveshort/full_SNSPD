@@ -1,4 +1,7 @@
 # SNSPD (Superconducting Nanowire Single-Photon Detector) Arbitrary Circuit Simulation
+
+!!! EVERYTHING BELOW IS OLD, NEEDS TO BE REDONE, WILL LEAVE FOR REFERENCE FOR NOW !!!
+
 ## Setting up the simulation (Linux)
 * First install some required packages (if I missed one, you'll get a `package not found` error somewhere down the line, just install that package analogous to the ones here):
 ```bash
