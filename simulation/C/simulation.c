@@ -158,9 +158,9 @@ int collect_data(char * inputPath, SimData * data) {
         if (fscanf(fp, "%lf;", &data->Iv_init[j]) < 1) exit(6);
     if (fscanf(fp, "%2000[^\n]\n", dump) < 1) exit(6);
 
-    data->C_init = calloc(data->numberOfC, sizeof(double));
+    data->V_c_init = calloc(data->numberOfC, sizeof(double));
     for (unsigned j=0; j<data->numberOfC; ++j)
-        if (fscanf(fp, "%lf;", &data->C_init[j]) < 1) exit(6);
+        if (fscanf(fp, "%lf;", &data->V_c_init[j]) < 1) exit(6);
     if (fscanf(fp, "%2000[^\n]\n", dump) < 1) exit(6);
 
     data->trigger = calloc(data->numberOfT, sizeof(int));
@@ -168,14 +168,14 @@ int collect_data(char * inputPath, SimData * data) {
         if (fscanf(fp, "%d;", &data->trigger[j]) < 1) exit(6);
     if (fscanf(fp, "%2000[^\n]\n", dump) < 1) exit(6);
 
-    data->initHS_l = calloc(data->numberOfT, sizeof(int));
+    data->HS_l_init = calloc(data->numberOfT, sizeof(double));
     for (unsigned j=0; j<data->numberOfT; ++j)
-        if (fscanf(fp, "%lf;", &data->initHS_l[j]) < 1) exit(6);
+        if (fscanf(fp, "%lf;", &data->HS_l_init[j]) < 1) exit(6);
     if (fscanf(fp, "%2000[^\n]\n", dump) < 1) exit(6);
 
-    data->initHS_T = calloc(data->numberOfT, sizeof(int));
+    data->HS_T_init = calloc(data->numberOfT, sizeof(double));
     for (unsigned j=0; j<data->numberOfT; ++j)
-        if (fscanf(fp, "%lf;", &data->initHS_T[j]) < 1) exit(6);
+        if (fscanf(fp, "%lf;", &data->HS_T_init[j]) < 1) exit(6);
     if (fscanf(fp, "%2000[^\n]\n", dump) < 1) exit(6);
 
         // skip line
@@ -239,89 +239,184 @@ SimRes * snspd_simulation(SimData * data) {
     return res;
 }
 
-// int write_results(char * outputPath, FILE * fp, SimData * data, SimRes * res) {
-//     // generate correct filenames
-//     const char Tbin[] = "T.bin";
-//     const char Ibin[] = "I.bin";
-//     const char Rbin[] = "R.bin";
-//     const char Cbin[] = "V_c.bin";
-//     const char paramInfo[] = "param.info";
-//     char *TFilename = calloc(strlen(outputPath) + strlen(Tbin) + 1, sizeof(char));
-//     char *IFilename = calloc(strlen(outputPath) + strlen(Ibin) + 1, sizeof(char));
-//     char *RFilename = calloc(strlen(outputPath) + strlen(Rbin) + 1, sizeof(char));
-//     char *CFilename = calloc(strlen(outputPath) + strlen(Cbin) + 1, sizeof(char));
-//     char *paramInfoFilename = calloc(strlen(outputPath) + strlen(paramInfo) + 1, sizeof(char));
-//     snprintf(TFilename, strlen(outputPath) + strlen(Tbin) + 1, "%s%s", outputPath, Tbin);
-//     snprintf(IFilename, strlen(outputPath) + strlen(Ibin) + 1, "%s%s", outputPath, Ibin);
-//     snprintf(RFilename, strlen(outputPath) + strlen(Rbin) + 1, "%s%s", outputPath, Rbin);
-//     snprintf(CFilename, strlen(outputPath) + strlen(Cbin) + 1, "%s%s", outputPath, Cbin);
-//     snprintf(paramInfoFilename, strlen(outputPath) + strlen(paramInfo) + 1, "%s%s", outputPath, paramInfo);
-//
-//     // write data to binary files
-//     FILE * fp;
-//     fp = fopen(TFilename, "wb");
-//     for (unsigned q=0; q<res->numberOfT; ++q) {
-//         for (unsigned n=0; n<res->N/res->timeskip; ++n)
-//         fwrite(res->T[q][n], sizeof(double), res->J[q], fp);
-//     }
-//     fclose(fp);
-//
-//     fp = fopen(IFilename, "wb");
-//     for (unsigned q=0; q<res->numberOfI; ++q) {
-//         for (unsigned n=0; n<res->N*res->ETratio; n += res->timeskip/10)
-//             fwrite(&res->I[q][n], sizeof(double), 1, fp);
-//     }
-//     fclose(fp);
-//
-//     fp = fopen(RFilename, "wb");
-//     for (unsigned q=0; q<res->numberOfR; ++q) {
-//         for (unsigned n=0; n<res->N*res->ETratio; n += res->timeskip/10)
-//             fwrite(&res->R[q][n], sizeof(double), 1, fp);
-//     }
-//     fclose(fp);
-//
-//     fp = fopen(CFilename, "wb");
-//     for (unsigned q=0; q<res->numberOfC; ++q) {
-//         for (unsigned n=0; n<res->N*res->ETratio; n += res->timeskip/10)
-//             fwrite(&res->V_c[q][n], sizeof(double), 1, fp);
-//     }
-//     fclose(fp);
-//
-//     // write simulation parameters to file for readout
-//     fp = fopen(paramInfoFilename, "w");
-//     fprintf(fp, "%40s; %d\n", "runtype of the simulation", res->runType);
-//     fprintf(fp, "%40s; %d\n", "transmission simulation type", res->tlType);
-//     fprintf(fp, "%40s; ", "J (# of spatial elements)");
-//     for (unsigned i=0; i<res->numberOfT; ++i) {
-//         if (i > 0) fprintf(fp, "; ");
-//         fprintf(fp, "%zu", res->J[i]);
-//     }
-//     fprintf(fp, "\n%40s; %zu\n", "N (# of temporal elements)", res->N);
-//     fprintf(fp, "%40s; %zu\n", "timeskip factor", res->timeskip);
-//     fprintf(fp, "%40s; %zu\n", "electrical / thermal time ratio", res->ETratio);
-//     fprintf(fp, "%40s; %zu\n", "# of nanowires", res->numberOfT);
-//     fprintf(fp, "%40s; %zu\n", "# of currents", res->numberOfI);
-//     fprintf(fp, "%40s; %zu\n", "# of resistances", res->numberOfR);
-//     fprintf(fp, "%40s; %zu\n", "# of capacitor voltages", res->numberOfC);
-//     fprintf(fp, "%40s; ", "I_b [A]");
-//     for (unsigned i=0; i<res->numberOfT; ++i) {
-//         if (i > 0) fprintf(fp, "; ");
-//         fprintf(fp, "%8.6e", res->I_b[i]);
-//     }
-//     fprintf(fp, "\n%40s; ", "dX [m]");
-//     for (unsigned i=0; i<res->numberOfT; ++i) {
-//         if (i > 0) fprintf(fp, "; ");
-//         fprintf(fp, "%8.6e", res->dX[i]);
-//     }
-//     fprintf(fp, "\n%40s; %8.6e\n", "dt [s]", res->dt);
-//     fclose(fp);
-//
-//     free(TFilename);
-//     free(IFilename);
-//     free(RFilename);
-//     free(CFilename);
-//     free(paramInfoFilename);
-// }
+int write_results(char * outputPath, SimData * data, SimRes * res) {
+    // generate correct filenames
+    const char Tbin[] = "T.bin";
+    const char Ibin[] = "Iv.bin";
+    const char Rbin[] = "R_w.bin";
+    const char Cbin[] = "V_c.bin";
+    const char paramInfo[] = "param.info";
+    char *TFilename = calloc(strlen(outputPath) + strlen(Tbin) + 1, sizeof(char));
+    char *IFilename = calloc(strlen(outputPath) + strlen(Ibin) + 1, sizeof(char));
+    char *RFilename = calloc(strlen(outputPath) + strlen(Rbin) + 1, sizeof(char));
+    char *CFilename = calloc(strlen(outputPath) + strlen(Cbin) + 1, sizeof(char));
+    char *paramInfoFilename = calloc(strlen(outputPath) + strlen(paramInfo) + 1, sizeof(char));
+    snprintf(TFilename, strlen(outputPath) + strlen(Tbin) + 1, "%s%s", outputPath, Tbin);
+    snprintf(IFilename, strlen(outputPath) + strlen(Ibin) + 1, "%s%s", outputPath, Ibin);
+    snprintf(RFilename, strlen(outputPath) + strlen(Rbin) + 1, "%s%s", outputPath, Rbin);
+    snprintf(CFilename, strlen(outputPath) + strlen(Cbin) + 1, "%s%s", outputPath, Cbin);
+    snprintf(paramInfoFilename, strlen(outputPath) + strlen(paramInfo) + 1, "%s%s", outputPath, paramInfo);
+
+    // write data to binary files
+    FILE * fp;
+    fp = fopen(TFilename, "wb");
+    for (unsigned q=0; q<data->numberOfT; ++q) {
+        for (unsigned n=0; n<data->N/data->timeskip; ++n)
+        fwrite(res->T[q][n], sizeof(double), data->J[q], fp);
+    }
+    fclose(fp);
+
+    fp = fopen(IFilename, "wb");
+    for (unsigned q=0; q<data->numberOfIv; ++q) {
+        for (unsigned n=0; n<data->N*data->ETratio; n += data->timeskip/10)
+            fwrite(&res->Iv[q][n], sizeof(double), 1, fp);
+    }
+    fclose(fp);
+
+    fp = fopen(RFilename, "wb");
+    for (unsigned q=0; q<data->numberOfT; ++q) {
+        for (unsigned n=0; n<data->N*data->ETratio; n += data->timeskip/10)
+            fwrite(&res->R_w[q][n], sizeof(double), 1, fp);
+    }
+    fclose(fp);
+
+    fp = fopen(CFilename, "wb");
+    for (unsigned q=0; q<data->numberOfC; ++q) {
+        for (unsigned n=0; n<data->N*data->ETratio; n += data->timeskip/10)
+            fwrite(&res->V_c[q][n], sizeof(double), 1, fp);
+    }
+    fclose(fp);
+
+    // write simulation parameters to file for readout
+    fp = fopen(paramInfoFilename, "w");
+    fprintf(fp, "%40s\n", "SIM MEMORY PARAMETERS");
+    fprintf(fp, "%40s; %zu\n", "number of nanowires", data->numberOfT);
+    fprintf(fp, "%40s; %zu\n", "number of currents", data->numberOfIv);
+    fprintf(fp, "%40s; %zu\n", "number of capacitors", data->numberOfC);
+    fprintf(fp, "%40s; %zu\n", "number of resistor groups", data->groupsOfR);
+    fprintf(fp, "%40s; ", "number of resistors per group, in order");
+    for (unsigned i=0; i<data->groupsOfR; ++i) {
+        if (i > 0) fprintf(fp, "; ");
+        fprintf(fp, "%zu", data->numberOfR[i]);
+    }
+    fprintf(fp, "\n%40s; %zu\n", "number of inductor groups", data->groupsOfL);
+    fprintf(fp, "%40s; ", "number of inductors per group, in order");
+    for (unsigned i=0; i<data->groupsOfL; ++i) {
+        if (i > 0) fprintf(fp, "; ");
+        fprintf(fp, "%zu", data->numberOfL[i]);
+    }
+    fprintf(fp, "\n%40s; %zu\n", "number of bias currents", data->numberOfIv_b);
+
+    fprintf(fp, "%40s\n", "SIM TIMING PARAMETERS");
+    fprintf(fp, "%40s; %zu\n", "N (# of temporal elements)", data->N);
+    fprintf(fp, "%40s; %10.3e\n", "tMax (sim time for thermal model)", data->tMax);
+    fprintf(fp, "%40s; %10.3e\n", "delta t", res->dt);
+    fprintf(fp, "%40s; %zu\n", "timeskip factor", data->timeskip);
+    fprintf(fp, "%40s; %zu\n", "electrical / thermal time ratio", data->ETratio);
+    fprintf(fp, "%40s; %d\n", "allow thermal optimization", data->allowOpt);
+
+    fprintf(fp, "%40s\n", "THERMAL PARAMETERS");
+    fprintf(fp, "%40s; %10.3e\n", "phonon specific heat", data->c_p);
+    fprintf(fp, "%40s; %10.3e\n", "electron specific heat", data->c_e);
+    fprintf(fp, "%40s; %10.3e\n", "thermal boundary conductivity", data->alpha);
+    fprintf(fp, "%40s; %10.3e\n", "reference temperature for thermal", data->T_ref);
+    fprintf(fp, "%40s; %10.3e\n", "sheet resistance", data->R_gamma);
+    fprintf(fp, "%40s; %10.3e\n", "critical temperature", data->T_c);
+    fprintf(fp, "%40s; %10.3e\n", "substrate temperature", data->T_sub);
+    fprintf(fp, "%40s; %10.3e\n", "sub temp epsilon, optimization strategy", data->T_sub_eps);
+
+    fprintf(fp, "%40s\n", "BIAS CURRENTS");
+    fprintf(fp, "%40s; ", "bias currents, in order");
+    for (unsigned i=0; i<data->numberOfIv_b; ++i) {
+        if (i > 0) fprintf(fp, "; ");
+        fprintf(fp, "%9.2e", data->Iv_b[i]);
+    }
+
+    fprintf(fp, "\n%40s\n", "NANOWIRE PARAMETERS");
+    fprintf(fp, "%40s; %10.3e\n", "impurity offset", data->impurityOffset);
+    fprintf(fp, "%40s; %10.3e\n", "impurity spread", data->impuritySpread);
+    fprintf(fp, "%40s; ", "J (# of spatial elements per wire)");
+    for (unsigned i=0; i<data->numberOfT; ++i) {
+        if (i > 0) fprintf(fp, "; ");
+        fprintf(fp, "%9zu", data->J[i]);
+    }
+    fprintf(fp, "\n%40s; ", "wire lengths");
+    for (unsigned i=0; i<data->numberOfT; ++i) {
+        if (i > 0) fprintf(fp, "; ");
+        fprintf(fp, "%9.2e", data->wireLength[i]);
+    }
+    fprintf(fp, "\n%40s; ", "wire thicknesses");
+    for (unsigned i=0; i<data->numberOfT; ++i) {
+        if (i > 0) fprintf(fp, "; ");
+        fprintf(fp, "%9.2e", data->wireThickness[i]);
+    }
+    fprintf(fp, "\n%40s; ", "wire widths");
+    for (unsigned i=0; i<data->numberOfT; ++i) {
+        if (i > 0) fprintf(fp, "; ");
+        fprintf(fp, "%9.2e", data->wireWidth[i]);
+    }
+    fprintf(fp, "\n%40s; ", "delta X's");
+    for (unsigned i=0; i<data->numberOfT; ++i) {
+        if (i > 0) fprintf(fp, "; ");
+        fprintf(fp, "%9.2e", res->dX[i]);
+    }
+    fprintf(fp, "\n%40s; ", "wire inductances");
+    for (unsigned i=0; i<data->numberOfT; ++i) {
+        if (i > 0) fprintf(fp, "; ");
+        fprintf(fp, "%9.2e", data->L_w[i]);
+    }
+    fprintf(fp, "\n%40s; ", "wire critical currents");
+    for (unsigned i=0; i<data->numberOfT; ++i) {
+        if (i > 0) fprintf(fp, "; ");
+        fprintf(fp, "%9.2e", data->Iv_c0[i]);
+    }
+    fprintf(fp, "\n%40s; ", "corresponding current per wire");
+    for (unsigned i=0; i<data->numberOfT; ++i) {
+        if (i > 0) fprintf(fp, "; ");
+        fprintf(fp, "%9d", data->cor_Iv[i]);
+    }
+
+    fprintf(fp, "\n%40s\n", "INITIAL CONDITIONS");
+    fprintf(fp, "%40s; ", "initial currents");
+    for (unsigned i=0; i<data->numberOfIv; ++i) {
+        if (i > 0) fprintf(fp, "; ");
+        fprintf(fp, "%9.2e", data->Iv_init[i]);
+    }
+    fprintf(fp, "\n%40s; ", "initial voltages");
+    for (unsigned i=0; i<data->numberOfC; ++i) {
+        if (i > 0) fprintf(fp, "; ");
+        fprintf(fp, "%9.2e", data->V_c_init[i]);
+    }
+    fprintf(fp, "\n%40s; ", "triggered nanowires");
+    for (unsigned i=0; i<data->numberOfT; ++i) {
+        if (i > 0) fprintf(fp, "; ");
+        fprintf(fp, "%9d", data->trigger[i]);
+    }
+    fprintf(fp, "\n%40s; ", "initial hot-spot size");
+    for (unsigned i=0; i<data->numberOfT; ++i) {
+        if (i > 0) fprintf(fp, "; ");
+        fprintf(fp, "%9.2e", data->HS_l_init[i]);
+    }
+    fprintf(fp, "\n%40s; ", "initial hot-spot temperature");
+    for (unsigned i=0; i<data->numberOfT; ++i) {
+        if (i > 0) fprintf(fp, "; ");
+        fprintf(fp, "%9.2e", data->HS_T_init[i]);
+    }
+
+    fprintf(fp, "\n%40s\n", "TRANSMISSION LINE PARAMETERS");
+    fprintf(fp, "%40s; %d\n", "transmission type", data->simTL);
+    fprintf(fp, "%40s; %zu\n", "NTL (# of transmission line elements)", data->NTL);
+    fprintf(fp, "%40s; %10.3e\n", "velocity factor", data->VF);
+    fprintf(fp, "%40s; %10.3e\n", "transmission line length", data->LTL);
+
+    fclose(fp);
+
+    free(TFilename);
+    free(IFilename);
+    free(RFilename);
+    free(CFilename);
+    free(paramInfoFilename);
+}
 
 int main(int argc, char * argv[]) {
     puts("########################################################################################\n################################### SNSPD SIMULATION ###################################\n########################################################################################\n");
@@ -356,9 +451,9 @@ int main(int argc, char * argv[]) {
     // run simulation
     SimRes * res = snspd_simulation(data);
 
-    puts("    Writing files...");
-    // write_results(argv[2], fp, data, res);
-    puts("    Done.\n");
+    puts("\n    WRITING RESULTS...");
+    write_results(argv[2], data, res);
+    puts("\n    DONE.\n");
 
     free_simres(data, res);
     free_simdata(data);

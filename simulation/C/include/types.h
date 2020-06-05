@@ -62,10 +62,10 @@ typedef struct _simdata {
     double * C;             // capacitor values, in order
     // initial conditions
     double * Iv_init;       // initial currents, in order
-    double * C_init;        // initial voltages over the capacitors, in order
+    double * V_c_init;      // initial voltages over the capacitors, in order
     int * trigger;          // which wires to trigger
-    double * initHS_l;      // initial hotspot size per nanowire, in order
-    double * initHS_T;      // initial hotspot temperature per nanowire, in order
+    double * HS_l_init;     // initial hotspot size per nanowire, in order
+    double * HS_T_init;     // initial hotspot temperature per nanowire, in order
     // transmission line parameters
     int simTL;              // 0: none, 1-4: delay, implicit, explicit par R, explicit
     size_t NTL;             // number of transmission line elements

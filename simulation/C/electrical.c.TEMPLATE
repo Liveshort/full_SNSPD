@@ -25,9 +25,8 @@ int advance_time_electrical(unsigned n, size_t numberOfIv, size_t numberOfC, dou
     for (int j=0; j<m; ++j)
         Am[j] = &A[j*m];
 
-    #### TEMPLATE LINE #### PARAMATER Am ####
-
-    #### TEMPLATE LINE #### PARAMATER b ####
+    #### TEMPLATE LINE #### PARAMETER Am ####
+    #### TEMPLATE LINE #### PARAMETER b ####
 
     // print_matrix(A, m);
     // print_vector(b, m);

@@ -38,15 +38,11 @@
 *.i*86
 *.x86_64
 *.hex
-C/bld/*
-!C/bld/.gitkeep
-sim_results/*
-!sim_results/.gitkeep
+simulation/C/bld/*
+!simulation/C/bld/.gitkeep
+simulation/C/output/*
+!simulation/C/output/.gitkeep
 nosync/*
-Python/Monte_Carlo/res/*
-!Python/Monte_Carlo/res/.gitkeep
-Python/Monte_Carlo/images/*
-!Python/Monte_Carlo/images/.gitkeep
 
 # Debug files
 *.dSYM/
@@ -62,3 +58,6 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# Python caches
+__pycache__/

@@ -32,7 +32,7 @@
 5E-9; wireThickness (thickness of the nanowires, in order)
 60E-9; wireWidth (width of the nanowires, in order)
 400E-9; L_w (kinetic inductance of the nanowires, in order)
-16E-6; Iv_c (critical currents of the nanowires, in order)
+16E-6; Iv_c0 (critical currents of the nanowires, in order)
 0; (corresponding current per nanowire, in order)
     // other component parameters
 0; (resistor values group 0)
@@ -43,8 +43,8 @@
 12E-6; 0; Iv_init (initial currents, in order)
 0; (initial voltage over capacitors, in order)
 1; (which nanowires to trigger, in order)
-15E-9; initHS_l (initial hotspot length (to simulate a photon hit))
-8; initHS_T (initial hotspot temperature)
+15E-9; HS_l_init (initial hotspot length (to simulate a photon hit))
+8; HS_T_init (initial hotspot temperature)
     // transmission line parameters
 1; simulate transmission (0: none, 1: delay, 2: no_ref_impl, 3: no_ref_dummy_expl, 4: no_ref_no_dummy_expl)
 100; NTL (number of transmission line elements)

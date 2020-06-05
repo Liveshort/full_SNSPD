@@ -73,7 +73,7 @@ int print_parameters(SimData * data) {
     puts("]");
     printf("    Init volts C: [ ");
     for (unsigned j=0; j<data->numberOfC; ++j)
-        printf("%8.2e ", data->C_init[j]);
+        printf("%8.2e ", data->V_c_init[j]);
     puts("]");
     printf("    Triggers: [ ");
     for (unsigned j=0; j<data->numberOfT; ++j)
@@ -129,14 +129,14 @@ int run_sim(SimRes * res, SimData * data, double * dX, double dt, size_t * J, si
     for (unsigned j=0; j<data->numberOfT; ++j)
         if (data->trigger[j] > 0) {
             unsigned halfway = J[j]/2;
-            unsigned initHS_segs = (unsigned) (data->initHS_l[j]/dX[j]) + 1;
+            unsigned initHS_segs = (unsigned) (data->HS_l_init[j]/dX[j]) + 1;
             // check if there is a nonzero number of segments
             if (initHS_segs < 2) {
                 puts("Number of segments in initial hot-spot smaller than 2.\nReturning empty result with error code 2 (wrong initial hot-spot size)...");
                 exit(2);
             }
             for (unsigned k=halfway - initHS_segs/2; k<halfway + initHS_segs/2; ++k)
-                T_curr[j][k] = data->initHS_T[j];
+                T_curr[j][k] = data->HS_T_init[j];
         }
 
     // set up vectors for the critical currents to simulate nanowire impurities
@@ -155,7 +155,7 @@ int run_sim(SimRes * res, SimData * data, double * dX, double dt, size_t * J, si
         for (unsigned j=0; j<data->numberOfIv; ++j)
             Iv[j][n] = data->Iv_init[j];
         for (unsigned j=0; j<data->numberOfC; ++j)
-            V_c[j][n] = data->C_init[j];
+            V_c[j][n] = data->V_c_init[j];
     }
 
     // prepare model parameters for estimating alpha, kappa and c
@@ -284,6 +284,7 @@ int run_sim(SimRes * res, SimData * data, double * dX, double dt, size_t * J, si
     free(T);
     free(Iv);
     free(R_w);
+    free(V_c);
 
     free(R_seg);
     free(currentDensity_w);
@@ -295,6 +296,6 @@ int run_sim(SimRes * res, SimData * data, double * dX, double dt, size_t * J, si
     free(Y);
 
     // print result
-    puts("\n    Simulation completed.");
+    puts("\n\n    SIMULATION COMPLETED.");
     return 0;
 }

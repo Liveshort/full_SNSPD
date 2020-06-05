@@ -37,6 +37,9 @@ void free_simdata(SimData * data) {
         free(data->R[j]);
     for (unsigned j=0; j<data->groupsOfL; ++j)
         free(data->L_x[j]);
+    free(data->R);
+    free(data->L_x);
+    free(data->C);
     free(data->numberOfR);
     free(data->numberOfL);
     free(data->Iv_b);
@@ -48,10 +51,10 @@ void free_simdata(SimData * data) {
     free(data->Iv_c0);
     free(data->cor_Iv);
     free(data->Iv_init);
-    free(data->C_init);
+    free(data->V_c_init);
     free(data->trigger);
-    free(data->initHS_l);
-    free(data->initHS_T);
+    free(data->HS_l_init);
+    free(data->HS_T_init);
 
     free(data);
 
